@@ -61,6 +61,14 @@ export const stripeCallerErrorRules: StripeCallerErrorRule[] = [
 		code: "stripe_resource_missing",
 	},
 	{
+		name: "Managed Payments through Connect",
+		matches: messageIncludes("Managed Payments cannot be used with Connect"),
+		message:
+			"Stripe Managed Payments cannot be used through Stripe Connect. Connect your Stripe account to Autumn with its secret key (Settings > Stripe) instead of Stripe Connect OAuth or Autumn's default sandbox account.",
+		statusCode: 400,
+		code: ErrCode.InvalidRequest,
+	},
+	{
 		name: "card declined",
 		matches: messageIncludes("Your card was declined."),
 		statusCode: 400,

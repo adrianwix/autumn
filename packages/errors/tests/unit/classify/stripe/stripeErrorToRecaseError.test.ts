@@ -100,6 +100,21 @@ describe("stripeErrorToRecaseError", () => {
 		expect(recaseError?.message).toBe("Your card was declined.");
 	});
 
+	it("answers Managed Payments through Connect with how to connect the account instead", () => {
+		const recaseError = stripeErrorToRecaseError({
+			error: stripeError({
+				message:
+					"You specified a Stripe-Account header, but Managed Payments cannot be used with Connect.",
+				statusCode: 400,
+			}),
+			path: "/v1/billing.attach",
+		});
+		expect(recaseError?.statusCode).toBe(400);
+		expect(recaseError?.code).toBe("invalid_request");
+		expect(recaseError?.message).toContain("secret key");
+		expect(classifyError({ error: recaseError }).kind).toBe("expected");
+	});
+
 	it("answers a Stripe rate limit with 429", () => {
 		const recaseError = stripeErrorToRecaseError({
 			error: stripeError({
