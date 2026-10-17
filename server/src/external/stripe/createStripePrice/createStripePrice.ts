@@ -232,6 +232,7 @@ export const createStripePriceIFNotExist = async ({
 		if (feature) {
 			config.stripe_product_id = await resolveStripeProductForFeaturePrice({
 				db,
+				org,
 				stripeCli,
 				feature,
 				entityFeatureId: entitlement.entity_feature_id ?? null,

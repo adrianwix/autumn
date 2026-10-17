@@ -11,6 +11,7 @@ import {
 } from "@autumn/shared";
 import { addMinutes } from "date-fns";
 import type Stripe from "stripe";
+import { orgToStripeProductTaxCodeParams } from "@/external/stripe/products/utils/orgToStripeProductTaxCode";
 import type { AutumnContext } from "@/honoUtils/HonoEnv";
 import { buildStripeCheckoutSessionItems } from "@/internal/billing/v2/providers/stripe/utils/checkoutSessions/buildStripeCheckoutSessionItems";
 import { buildAutumnSubscriptionMetadata } from "@/internal/billing/v2/providers/stripe/utils/common/autumnStripeMetadata";
@@ -69,7 +70,10 @@ export const buildStripeCheckoutSessionAction = ({
 		.map((lineItem) => ({
 			price_data: {
 				currency,
-				product_data: { name: lineItem.description },
+				product_data: {
+					name: lineItem.description,
+					...orgToStripeProductTaxCodeParams({ org }),
+				},
 				// Checkout applies the session's discounts itself.
 				unit_amount: atmnToStripeAmount({ amount: lineItem.amount, currency }),
 			},

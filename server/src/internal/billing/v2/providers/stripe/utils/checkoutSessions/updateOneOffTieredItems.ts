@@ -10,6 +10,7 @@ import {
 	usagePriceToLineItem,
 } from "@autumn/shared";
 import type Stripe from "stripe";
+import { orgToStripeProductTaxCodeParams } from "@/external/stripe/products/utils/orgToStripeProductTaxCode";
 import { stripeItemSpecToCheckoutLineItem } from "../stripeItemSpec/stripeItemSpecToStripeParam";
 
 /**
@@ -77,6 +78,7 @@ export const updateOneOffTieredItems = ({
 			price_data: {
 				product_data: {
 					name: lineItem.description,
+					...orgToStripeProductTaxCodeParams({ org }),
 				},
 				unit_amount: atmnToStripeAmount({ amount: lineItem.amount, currency }),
 				currency,
