@@ -32,6 +32,11 @@ export const InvoicePaymentMethodSchema = z.enum([
 
 export type InvoicePaymentMethod = z.infer<typeof InvoicePaymentMethodSchema>;
 
+/** A Stripe product tax code ID, e.g. `txcd_10103000` (SaaS, personal use). */
+export const StripeTaxCodeSchema = z
+	.string()
+	.regex(/^txcd_\d{8}$/, "Must be a Stripe tax code, e.g. txcd_10103000");
+
 export const OrgConfigSchema = z.object({
 	usage_alerts: OrgUsageAlertsSchema,
 	/** Sandbox-env-only usage alerts. `checkUsageAlerts` reads this list when
@@ -79,6 +84,10 @@ export const OrgConfigSchema = z.object({
 	// When true, Stripe writes pass `automatic_tax: { enabled: true }`.
 	// Customer must have a tax-resolvable address.
 	automatic_tax: z.boolean().default(false),
+
+	// Set as `tax_code` on every Stripe product Autumn creates; existing
+	// products keep theirs. Unset/null = Stripe's preset tax code applies.
+	product_tax_code: StripeTaxCodeSchema.nullish(),
 
 	multi_currency: z.boolean().default(false),
 

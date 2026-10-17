@@ -37,6 +37,10 @@ There are three ways to connect your Stripe account to Autumn:
 | **Secret key** | Paste your Stripe secret key directly. Autumn creates a webhook endpoint automatically |
 
 <Note>
+Stripe Managed Payments cannot be used through Stripe Connect, which the default sandbox and OAuth both use. To sell through Managed Payments, connect with a secret key, and set a **Product tax code** in your billing settings so every Stripe product Autumn creates has an eligible tax code.
+</Note>
+
+<Note>
 When disconnecting and reconnecting a different Stripe account, existing Stripe IDs on your plans become invalid. Autumn will recreate the products and prices in the new account when you `attach` it, but old customers and subscriptions will no longer be linked.
 </Note>
 

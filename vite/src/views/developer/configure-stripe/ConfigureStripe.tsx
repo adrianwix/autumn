@@ -170,6 +170,7 @@ export const ConfigureStripe = () => {
 						/>
 						<StripeChannelCell
 							title="Secret key"
+							meta="Needed for Stripe Managed Payments"
 							subtitle={
 								secretKeyConnected
 									? connectedAccountSubtitle

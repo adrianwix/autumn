@@ -1,9 +1,18 @@
-import type { Feature, Price, UsagePriceConfig } from "@autumn/shared";
+import type {
+	Feature,
+	Organization,
+	Price,
+	UsagePriceConfig,
+} from "@autumn/shared";
 import type { DrizzleCli } from "@server/db/initDrizzle.js";
 import { updateFeatureStripeProductIdIfUnset } from "@server/internal/features/repos/updateFeatureStripeProductIdIfUnset.js";
 import { PriceService } from "@server/internal/products/prices/PriceService.js";
 import type Stripe from "stripe";
 import { buildStripeFeatureProductIdempotencyKey } from "../../prices/utils/buildIdempotencyKey.js";
+import {
+	orgToStripeProductTaxCode,
+	orgToStripeProductTaxCodeParams,
+} from "./orgToStripeProductTaxCode.js";
 import { retrieveLiveStripeProduct } from "./retrieveLiveStripeProduct.js";
 
 /** The Stripe Product the price's plan already bills this feature under, e.g. a
@@ -58,12 +67,14 @@ const retrievePlanFeatureStripeProduct = async ({
 
 export const resolveStripeProductForFeaturePrice = async ({
 	db,
+	org,
 	stripeCli,
 	feature,
 	entityFeatureId = null,
 	price,
 }: {
 	db: DrizzleCli;
+	org: Pick<Organization, "config">;
 	stripeCli: Stripe;
 	feature: Feature;
 	/** Entity scope of the price's entitlement; only same-scope plan prices are inherited. */
@@ -103,10 +114,12 @@ export const resolveStripeProductForFeaturePrice = async ({
 		{
 			name: feature.name,
 			metadata: { autumn_feature_internal_id: feature.internal_id },
+			...orgToStripeProductTaxCodeParams({ org }),
 		},
 		{
 			idempotencyKey: buildStripeFeatureProductIdempotencyKey({
 				featureInternalId: feature.internal_id,
+				taxCode: orgToStripeProductTaxCode({ org }),
 			}),
 		},
 	);

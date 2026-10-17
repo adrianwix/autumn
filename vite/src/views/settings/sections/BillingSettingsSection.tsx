@@ -4,6 +4,7 @@ import {
 	ORG_SETTINGS_LABELS,
 	type OrgConfig,
 	RouteGroup,
+	StripeTaxCodeSchema,
 } from "@autumn/shared";
 import {
 	Button,
@@ -166,6 +167,14 @@ export const BillingSettingsSection = () => {
 	const handleSave = () => {
 		if (!isDirty || isPending) return;
 
+		if (
+			pending.product_tax_code &&
+			!StripeTaxCodeSchema.safeParse(pending.product_tax_code).success
+		) {
+			toast.error("Product tax code must look like txcd_10103000");
+			return;
+		}
+
 		if (isTtlDirty && pendingTtl) {
 			const ttlHours = toHours(pendingTtl);
 			if (
@@ -213,6 +222,21 @@ export const BillingSettingsSection = () => {
 						/>
 					</SettingsRow>
 				))}
+				<SettingsRow
+					label="Product tax code"
+					description="Stripe tax code set on every Stripe product Autumn creates, e.g. txcd_10103000. Stripe Managed Payments requires one."
+				>
+					<Input
+						aria-label="Product tax code"
+						className="w-40"
+						placeholder="txcd_10103000"
+						value={displayConfig.product_tax_code ?? ""}
+						onChange={(e) =>
+							handleChange("product_tax_code", e.target.value.trim() || null)
+						}
+						disabled={isPending}
+					/>
+				</SettingsRow>
 				{IDEMPOTENCY_TTL_CONFIG_ENABLED && (
 					<SettingsRow
 						label="Idempotency key duration"

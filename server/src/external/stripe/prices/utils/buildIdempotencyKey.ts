@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { priceToStripePriceIdempotencyShape, type Price } from "@autumn/shared";
+import { type Price, priceToStripePriceIdempotencyShape } from "@autumn/shared";
 import { AUTUMN_STRIPE_IDEMPOTENCY_PREFIX } from "@/external/stripe/common/autumnStripeIdempotency";
 
 const hashStripePriceIdempotencyShape = ({
@@ -41,17 +41,27 @@ export const buildStripePriceIdempotencyKey = ({
 }) =>
 	`${AUTUMN_STRIPE_IDEMPOTENCY_PREFIX}price:${price.id}:${slot}:${currency}:${stripeProductId}:${hashStripePriceIdempotencyShape({ price, currency, orgDefault })}`;
 
+/** The tax code is a `products.create` parameter, so it is part of the key:
+ * Stripe rejects a reused key whose parameters changed. */
+const taxCodeKeySuffix = (taxCode?: string) => (taxCode ? `:${taxCode}` : "");
+
 export const buildStripeProductIdempotencyKey = ({
 	productInternalId,
+	taxCode,
 }: {
 	productInternalId: string;
-}) => `${AUTUMN_STRIPE_IDEMPOTENCY_PREFIX}product:${productInternalId}`;
+	taxCode?: string;
+}) =>
+	`${AUTUMN_STRIPE_IDEMPOTENCY_PREFIX}product:${productInternalId}${taxCodeKeySuffix(taxCode)}`;
 
 export const buildStripeFeatureProductIdempotencyKey = ({
 	featureInternalId,
+	taxCode,
 }: {
 	featureInternalId: string;
-}) => `${AUTUMN_STRIPE_IDEMPOTENCY_PREFIX}product:feature:${featureInternalId}`;
+	taxCode?: string;
+}) =>
+	`${AUTUMN_STRIPE_IDEMPOTENCY_PREFIX}product:feature:${featureInternalId}${taxCodeKeySuffix(taxCode)}`;
 
 export const buildStripeMeterIdempotencyKey = ({
 	priceId,

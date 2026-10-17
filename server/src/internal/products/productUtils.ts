@@ -26,6 +26,10 @@ import { createStripeCli } from "@server/external/connect/createStripeCli.js";
 import { createStripePriceIFNotExist } from "@server/external/stripe/createStripePrice/createStripePrice.js";
 import { assertNoPreviewStripeIdsOnProduct } from "@server/external/stripe/previewStripeResourceIds.js";
 import { buildStripeProductIdempotencyKey } from "@server/external/stripe/prices/utils/buildIdempotencyKey.js";
+import {
+	orgToStripeProductTaxCode,
+	orgToStripeProductTaxCodeParams,
+} from "@server/external/stripe/products/utils/orgToStripeProductTaxCode.js";
 import { getBillingType } from "@server/internal/products/prices/priceUtils.js";
 import RecaseError from "@server/utils/errorUtils.js";
 import { generateId, notNullish } from "@server/utils/genUtils.js";
@@ -258,10 +262,12 @@ export const checkStripeProductExists = async ({
 		const stripeProduct = await stripeCli.products.create(
 			{
 				name: product.name,
+				...orgToStripeProductTaxCodeParams({ org }),
 			},
 			{
 				idempotencyKey: buildStripeProductIdempotencyKey({
 					productInternalId: product.internal_id,
+					taxCode: orgToStripeProductTaxCode({ org }),
 				}),
 			},
 		);
